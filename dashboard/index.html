@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AASE – AI Automated Security Engineer | Live Demo Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0e1a;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+:root{--red:#ef4444;--yellow:#f59e0b;--green:#22c55e;--blue:#3b82f6;--cyan:#06b6d4;--purple:#a855f7;--bg2:#111827;--bg3:#1f2937;--border:#374151}
+header{background:linear-gradient(135deg,#0f172a,#1e1b4b);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:.75rem}
+.logo-icon{width:2.5rem;height:2.5rem;background:linear-gradient(135deg,var(--cyan),var(--blue));border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.logo h1{font-size:1.25rem;font-weight:700;color:#f8fafc}
+.logo p{font-size:.7rem;color:#94a3b8;letter-spacing:.05em;text-transform:uppercase}
+.status-bar{display:flex;gap:1rem;font-size:.75rem}
+.status-pill{display:flex;align-items:center;gap:.4rem;background:var(--bg3);border:1px solid var(--border);padding:.35rem .75rem;border-radius:999px}
+.dot{width:.5rem;height:.5rem;border-radius:50%}
+.dot.green{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+.dot.blue{background:var(--blue)}
+.dot.yellow{background:var(--yellow)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+main{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1.5rem 2rem}
+@media(max-width:900px){main{grid-template-columns:1fr 1fr}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card.critical::before{background:var(--red)}
+.card.high::before{background:var(--yellow)}
+.card.ok::before{background:var(--green)}
+.card.info::before{background:var(--blue)}
+.card h3{font-size:.75rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.metric{font-size:2.5rem;font-weight:800;line-height:1}
+.metric.red{color:var(--red)}
+.metric.yellow{color:var(--yellow)}
+.metric.green{color:var(--green)}
+.metric.blue{color:var(--blue)}
+.metric.cyan{color:var(--cyan)}
+.meta{font-size:.7rem;color:#64748b;margin-top:.4rem}
+section.full{grid-column:1/-1}
+section.half{grid-column:span 2}
+.table-wrap{overflow-x:auto;margin-top:.75rem}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{text-align:left;color:#64748b;font-weight:600;font-size:.7rem;text-transform:uppercase;padding:.4rem .75rem;border-bottom:1px solid var(--border)}
+td{padding:.55rem .75rem;border-bottom:1px solid #1e2533}
+tr:last-child td{border:none}
+tr:hover td{background:#161d2e}
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.65rem;font-weight:700;padding:.2rem .5rem;border-radius:.3rem;text-transform:uppercase;letter-spacing:.04em}
+.badge.critical{background:#7f1d1d;color:var(--red)}
+.badge.high{background:#78350f;color:var(--yellow)}
+.badge.medium{background:#4c1d95;color:#c4b5fd}
+.badge.pass{background:#14532d;color:var(--green)}
+.badge.fail{background:#7f1d1d;color:var(--red)}
+.badge.partial{background:#78350f;color:var(--yellow)}
+.badge.info{background:#1e3a5f;color:var(--blue)}
+.activity{margin-top:.75rem;display:flex;flex-direction:column;gap:.5rem;max-height:300px;overflow-y:auto}
+.event{display:flex;gap:.75rem;align-items:flex-start;font-size:.78rem}
+.event-time{color:#475569;font-size:.7rem;white-space:nowrap;min-width:5rem}
+.event-dot{width:.55rem;height:.55rem;border-radius:50%;margin-top:.2rem;flex-shrink:0}
+.event-text{color:#cbd5e1;line-height:1.4}
+.event-text strong{font-size:.7rem;color:#94a3b8}
+.progress-row{display:flex;align-items:center;gap:.75rem;margin:.3rem 0;font-size:.78rem}
+.progress-label{color:#94a3b8;width:10rem;flex-shrink:0}
+.progress-bar-bg{flex:1;background:#1e2533;border-radius:999px;height:.5rem;overflow:hidden}
+.progress-bar{height:100%;border-radius:999px;transition:width 1.5s ease}
+.progress-val{color:#94a3b8;font-size:.7rem;width:2.5rem;text-align:right}
+.scan-anim{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem;font-size:.78rem;font-family:monospace;max-height:280px;overflow-y:auto}
+.scan-line{display:flex;gap:.5rem;align-items:center}
+.scan-ok{color:var(--green)}
+.scan-warn{color:var(--yellow)}
+.scan-crit{color:var(--red)}
+.scan-dim{color:#475569}
+.timer{font-size:1.8rem;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums}
+footer{text-align:center;padding:1.5rem;color:#374151;font-size:.75rem;border-top:1px solid var(--border)}
+.sparkline{display:flex;align-items:flex-end;gap:2px;height:2rem;margin-top:.5rem}
+.spark{background:var(--blue);border-radius:2px 2px 0 0;opacity:.6;transition:opacity .2s;flex:1}
+.spark:hover{opacity:1}
+.tag-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.tag{font-size:.65rem;background:#1e2533;color:#94a3b8;padding:.15rem .45rem;border-radius:.25rem;border:1px solid var(--border)}
+#now{color:#94a3b8;font-size:.75rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">&#128737;</div>
+    <div>
+      <h1>AI Automated Security Engineer</h1>
+      <p>Self-Hosted Enterprise Platform &nbsp;|&nbsp; v1.0.0</p>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="status-pill"><div class="dot green"></div>Platform Live</div>
+    <div class="status-pill"><div class="dot green"></div>Ollama LLM</div>
+    <div class="status-pill"><div class="dot green"></div>SIEM Active</div>
+    <div class="status-pill"><div class="dot blue"></div><span id="now"></span></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- KPI Row -->
+  <div class="card critical">
+    <h3>Critical Vulnerabilities</h3>
+    <div class="metric red" id="kpi-crit">0</div>
+    <div class="meta">&#9650; 4 new in last 24h &nbsp;|&nbsp; AWS + Banking</div>
+  </div>
+  <div class="card high">
+    <h3>Active Threats</h3>
+    <div class="metric yellow" id="kpi-threats">0</div>
+    <div class="meta">3 CRITICAL &nbsp;|&nbsp; 4 HIGH &nbsp;|&nbsp; 1 MEDIUM</div>
+  </div>
+  <div class="card ok">
+    <h3>MTTR (Auto-Contain)</h3>
+    <div class="metric green">87s</div>
+    <div class="meta">Target: &lt;120s &nbsp;&#10003;&nbsp; SLA Met</div>
+  </div>
+  <div class="card info">
+    <h3>Compliance Score</h3>
+    <div class="metric cyan" id="kpi-comp">0%</div>
+    <div class="meta">PCI 68% &nbsp;|&nbsp; HIPAA 82% &nbsp;|&nbsp; CIS 61%</div>
+  </div>
+
+  <!-- Vulnerability Findings -->
+  <div class="card half">
+    <h3>&#128270; Vulnerability Scanner — Latest Findings</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>CVE / ID</th><th>Title</th><th>CVSS</th><th>Severity</th><th>Environment</th></tr></thead>
+        <tbody>
+          <tr><td>CVE-2024-3094</td><td>XZ Utils Supply-Chain Backdoor</td><td>10.0</td><td><span class="badge critical">Critical</span></td><td>AWS</td></tr>
+          <tr><td>CVE-2024-1709</td><td>ConnectWise Auth Bypass (RCE)</td><td>10.0</td><td><span class="badge critical">Critical</span></td><td>Azure</td></tr>
+          <tr><td>AASE-NET-001</td><td>Redis Exposed Without Auth</td><td>9.8</td><td><span class="badge critical">Critical</span></td><td>Banking</td></tr>
+          <tr><td>AASE-SQL-005</td><td>SQL Injection /api/search</td><td>9.1</td><td><span class="badge critical">Critical</span></td><td>Banking</td></tr>
+          <tr><td>CVE-2024-21412</td><td>Windows SmartScreen Bypass</td><td>8.1</td><td><span class="badge high">High</span></td><td>Azure</td></tr>
+          <tr><td>AASE-IAM-002</td><td>IAM User Without MFA</td><td>7.8</td><td><span class="badge high">High</span></td><td>AWS</td></tr>
+          <tr><td>AASE-S3-003</td><td>S3 Bucket Public Read Access</td><td>7.5</td><td><span class="badge high">High</span></td><td>AWS</td></tr>
+          <tr><td>AASE-CTR-006</td><td>Container Running as Root</td><td>6.5</td><td><span class="badge medium">Medium</span></td><td>Azure</td></tr>
+          <tr><td>AASE-WEB-004</td><td>Missing HSTS Header</td><td>5.3</td><td><span class="badge medium">Medium</span></td><td>Banking</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Real-time Threat Feed -->
+  <div class="card half">
+    <h3>&#9889; Real-Time Threat Detection Feed</h3>
+    <div class="activity" id="threat-feed">
+      <div class="event"><span class="event-time">14:32:07</span><div class="event-dot" style="background:var(--red)"></div><div class="event-text"><strong>[CRITICAL]</strong> Ransomware File Encryption — 10.0.1.82 — T1486 Impact<br>&#10148; AUTO RESPONSE: Host isolated in 12s, evidence preserved</div></div>
+      <div class="event"><span class="event-time">14:31:55</span><div class="event-dot" style="background:var(--red)"></div><div class="event-text"><strong>[CRITICAL]</strong> C2 Beacon — Cobalt Strike — 10.0.1.45 — T1071.001 C2<br>&#10148; AUTO RESPONSE: C2 IP blocked at firewall, PagerDuty paged</div></div>
+      <div class="event"><span class="event-time">14:30:41</span><div class="event-dot" style="background:var(--red)"></div><div class="event-text"><strong>[CRITICAL]</strong> Pass-the-Hash Lateral Movement — 192.168.100.5 — T1550.002<br>&#10148; AUTO RESPONSE: Account disabled, credentials rotated</div></div>
+      <div class="event"><span class="event-time">14:28:12</span><div class="event-dot" style="background:var(--yellow)"></div><div class="event-text"><strong>[HIGH]</strong> Brute Force Attack — 185.220.101.47 — 847 attempts — T1110.001<br>&#10148; AUTO RESPONSE: IP blocked, account lockout enforced</div></div>
+      <div class="event"><span class="event-time">14:26:03</span><div class="event-dot" style="background:var(--yellow)"></div><div class="event-text"><strong>[HIGH]</strong> DNS Tunnelling — 10.1.0.10 — 240MB exfil — T1048.003 — APT29 infra<br>&#10148; AUTO RESPONSE: DNS queries throttled, JIRA SEC-4891 created</div></div>
+      <div class="event"><span class="event-time">14:24:50</span><div class="event-dot" style="background:var(--yellow)"></div><div class="event-text"><strong>[HIGH]</strong> Sudo Privilege Escalation — 10.0.2.10 — T1548.003<br>&#10148; AUTO RESPONSE: Session terminated, alert sent to Slack</div></div>
+      <div class="event"><span class="event-time">14:22:11</span><div class="event-dot" style="background:var(--yellow)"></div><div class="event-text"><strong>[HIGH]</strong> S3 Mass Download by svc-deploy IAM — 12,540 objects — T1530</div></div>
+      <div class="event"><span class="event-time">14:19:33</span><div class="event-dot" style="background:var(--purple)"></div><div class="event-text"><strong>[MEDIUM]</strong> XMRig Cryptomining Process — 10.0.1.82 — T1496 Impact</div></div>
+    </div>
+  </div>
+
+  <!-- Compliance -->
+  <div class="card half">
+    <h3>&#9989; Compliance Status — Multi-Framework</h3>
+    <div style="margin-top:.75rem">
+      <div class="progress-row"><span class="progress-label">PCI-DSS v4.0</span><div class="progress-bar-bg"><div class="progress-bar" style="width:68%;background:var(--yellow)"></div></div><span class="progress-val">68%</span></div>
+      <div class="progress-row"><span class="progress-label">HIPAA Security</span><div class="progress-bar-bg"><div class="progress-bar" style="width:82%;background:var(--green)"></div></div><span class="progress-val">82%</span></div>
+      <div class="progress-row"><span class="progress-label">CIS Controls v8</span><div class="progress-bar-bg"><div class="progress-bar" style="width:61%;background:var(--red)"></div></div><span class="progress-val">61%</span></div>
+      <div class="progress-row"><span class="progress-label">ISO 27001:2022</span><div class="progress-bar-bg"><div class="progress-bar" style="width:87%;background:var(--green)"></div></div><span class="progress-val">87%</span></div>
+      <div class="progress-row"><span class="progress-label">NIST CSF 2.0</span><div class="progress-bar-bg"><div class="progress-bar" style="width:92%;background:var(--green)"></div></div><span class="progress-val">92%</span></div>
+      <div class="progress-row"><span class="progress-label">SWIFT CSP</span><div class="progress-bar-bg"><div class="progress-bar" style="width:88%;background:var(--green)"></div></div><span class="progress-val">88%</span></div>
+      <div class="progress-row"><span class="progress-label">FedRAMP Moderate</span><div class="progress-bar-bg"><div class="progress-bar" style="width:85%;background:var(--green)"></div></div><span class="progress-val">85%</span></div>
+    </div>
+    <div style="margin-top:.75rem">
+      <div style="font-size:.7rem;color:#ef4444;font-weight:600">&#9888; Critical Gaps Requiring Immediate Action:</div>
+      <div style="font-size:.72rem;color:#94a3b8;margin-top:.3rem;line-height:1.6">MFA missing on svc-deploy, svc-ci &nbsp;|&nbsp; 4 critical CVEs unpatched &gt;30 days &nbsp;|&nbsp; Default credentials on 3 devices &nbsp;|&nbsp; 12 dormant accounts &gt;45 days</div>
+    </div>
+  </div>
+
+  <!-- Incident Response -->
+  <div class="card half">
+    <h3>&#128680; Active Incident — INC-A4F82B19 &nbsp;<span class="badge critical">P1 Critical</span></h3>
+    <div style="font-size:.8rem;color:#94a3b8;margin:.5rem 0">Ransomware on 10.0.1.82 &nbsp;|&nbsp; Detected 14:31:55 UTC</div>
+    <div class="scan-anim">
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>Network Isolation — 10.0.1.82 isolated from all VLANs</span></div>
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>PagerDuty P1 — SOC + CISO paged immediately</span></div>
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>C2 Blocked — 185.220.101.47 firewall rule pushed</span></div>
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>Forensics — 32 GB RAM dump + SHA-256 hash preserved</span></div>
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>IAM Disabled — svc-deploy, svc-ci, app-runner keys revoked</span></div>
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>JIRA SEC-4891 — Created with full evidence timeline</span></div>
+      <div class="scan-line"><span class="scan-ok">[AUTO]</span><span>Slack Alert — #critical-incidents notified</span></div>
+      <div class="scan-line"><span class="scan-warn">[MANUAL]</span><span>Backup Integrity — Engineering verifying S3 snapshot</span></div>
+      <div class="scan-line"><span class="scan-warn">[MANUAL]</span><span>GDPR Assessment — Legal reviewing 72h notification window</span></div>
+    </div>
+    <div style="margin-top:.75rem;font-size:.75rem;color:#22c55e;font-weight:600">&#10003; Contained in 87 seconds &nbsp;|&nbsp; 7/9 steps automated</div>
+  </div>
+
+  <!-- AI Analysis -->
+  <div class="card full">
+    <h3>&#129504; AI Threat Intelligence — Self-Hosted Llama 3.1 70B via Ollama &nbsp;<span class="badge info">0 bytes sent externally</span></h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.75rem">
+      <div style="background:#0f172a;border:1px solid var(--border);border-radius:.5rem;padding:1rem;font-family:monospace;font-size:.75rem;line-height:1.7">
+        <div style="color:var(--cyan);margin-bottom:.5rem">&gt; LLM Analysis: Ransomware — 10.0.1.82</div>
+        <div style="color:#94a3b8">Threat Actor: <span style="color:#f8fafc">LockBit 3.0 affiliate (conf: 87%)</span></div>
+        <div style="color:#94a3b8">Attack Chain: <span style="color:#f8fafc">T1190 → T1547 → T1562 → T1550 → T1048 → T1486</span></div>
+        <div style="color:#94a3b8">Dwell Time:   <span style="color:#f8fafc">4-7 days (VSS deletion 3 days prior)</span></div>
+        <div style="color:#94a3b8">Impact:       <span style="color:var(--red)">HIGH — ~14 TB production data encrypted</span></div>
+        <div style="color:#94a3b8">Restore From: <span style="color:var(--green)">S3 backup 2026-04-09 02:15 UTC ✓</span></div>
+        <div style="color:#94a3b8;margin-top:.3rem">Confidence:   <span style="color:var(--green)">87%</span></div>
+      </div>
+      <div style="background:#0f172a;border:1px solid var(--border);border-radius:.5rem;padding:1rem;font-family:monospace;font-size:.75rem;line-height:1.7">
+        <div style="color:var(--cyan);margin-bottom:.5rem">&gt; LLM Analysis: DNS Exfiltration — 10.1.0.10 (Azure)</div>
+        <div style="color:#94a3b8">Technique:  <span style="color:#f8fafc">DNS tunnelling, base64 subdomains, entropy 4.2 bits</span></div>
+        <div style="color:#94a3b8">Volume:     <span style="color:#f8fafc">~240 MB over 6 hours</span></div>
+        <div style="color:#94a3b8">Destination:<span style="color:var(--red)"> attacker-infra.onion-proxy.net (APT29 infra)</span></div>
+        <div style="color:#94a3b8">Confidence: <span style="color:var(--green)">91%</span> &nbsp; FP Likelihood: <span style="color:var(--green)">4%</span></div>
+        <div style="color:#94a3b8">Fix:        <span style="color:#f8fafc">Block DNS labels &gt;63 chars + deploy DNS RPZ</span></div>
+        <div style="color:#94a3b8;margin-top:.3rem">MITRE:      <span style="color:#f8fafc">T1048.003 Exfiltration over DNS</span></div>
+      </div>
+    </div>
+    <div class="tag-row" style="margin-top:.75rem">
+      <span class="tag">Llama 3.1 70B</span><span class="tag">Ollama Local</span><span class="tag">Air-Gapped Ready</span>
+      <span class="tag">MITRE ATT&CK v14</span><span class="tag">CVE 2024 NVD</span><span class="tag">STIX 2.1 IOCs</span>
+      <span class="tag">AWS GuardDuty</span><span class="tag">Azure Sentinel</span><span class="tag">Elasticsearch SIEM</span>
+    </div>
+  </div>
+
+  <!-- Environment Coverage -->
+  <div class="card full">
+    <h3>&#127758; Environment Coverage — Scanned in Last 24h</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:.75rem">
+      <div style="background:#0f172a;border:1px solid var(--border);border-radius:.5rem;padding:.75rem">
+        <div style="font-weight:700;color:var(--yellow);margin-bottom:.4rem">&#9729; Amazon AWS</div>
+        <div style="font-size:.75rem;color:#94a3b8;line-height:1.8">
+          Hosts Scanned: <span style="color:#f8fafc">4</span><br>
+          GuardDuty Findings: <span style="color:var(--red)">3 Critical</span><br>
+          CloudTrail Events: <span style="color:var(--yellow)">847 suspicious</span><br>
+          S3 Issues: <span style="color:var(--red)">1 public bucket</span><br>
+          IAM Issues: <span style="color:var(--red)">No MFA on 2 accounts</span>
+        </div>
+      </div>
+      <div style="background:#0f172a;border:1px solid var(--border);border-radius:.5rem;padding:.75rem">
+        <div style="font-weight:700;color:var(--blue);margin-bottom:.4rem">&#9729; Microsoft Azure / Avahi AI</div>
+        <div style="font-size:.75rem;color:#94a3b8;line-height:1.8">
+          Hosts Scanned: <span style="color:#f8fafc">3</span><br>
+          Sentinel Alerts: <span style="color:var(--yellow)">5 High</span><br>
+          AAD Issues: <span style="color:var(--yellow)">Conditional Access gaps</span><br>
+          Defender Score: <span style="color:var(--yellow)">74/100</span><br>
+          DNS Exfil Detected: <span style="color:var(--red)">YES — APT29</span>
+        </div>
+      </div>
+      <div style="background:#0f172a;border:1px solid var(--border);border-radius:.5rem;padding:.75rem">
+        <div style="font-weight:700;color:var(--green);margin-bottom:.4rem">&#127968; Banking / SWIFT Network</div>
+        <div style="font-size:.75rem;color:#94a3b8;line-height:1.8">
+          Hosts Scanned: <span style="color:#f8fafc">3</span><br>
+          PCI-DSS Score: <span style="color:var(--yellow)">68%</span><br>
+          SQL Injection: <span style="color:var(--red)">CONFIRMED — API v2.3</span><br>
+          Pass-the-Hash: <span style="color:var(--red)">CRITICAL — Lateral Move</span><br>
+          SWIFT CSP Score: <span style="color:var(--green)">88%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  AI Automated Security Engineer &nbsp;|&nbsp; Self-Hosted &nbsp;|&nbsp; Zero Data Leaves Your Environment &nbsp;|&nbsp;
+  <a href="https://github.com/Mangesh-Bhattacharya/AI-Automated-Security-Engineer" style="color:var(--cyan)">GitHub</a>
+</footer>
+
+<script>
+// Live clock
+function updateClock(){
+  const now=new Date();
+  document.getElementById('now').textContent=now.toISOString().replace('T',' ').slice(0,19)+' UTC';
+}
+setInterval(updateClock,1000); updateClock();
+
+// Animate KPI counters
+function animCount(id,target,suffix,delay){
+  let v=0,step=Math.max(1,Math.floor(target/40));
+  setTimeout(()=>{
+    const t=setInterval(()=>{
+      v=Math.min(v+step,target);
+      document.getElementById(id).textContent=v+(suffix||'');
+      if(v>=target)clearInterval(t);
+    },40);
+  },delay);
+}
+animCount('kpi-crit',4,'',300);
+animCount('kpi-threats',8,'',500);
+animCount('kpi-comp',71,'%',700);
+
+// Add live events every few seconds
+const newEvents=[
+  {t:'CRITICAL',col:'var(--red)',  msg:'Port scan from 91.108.4.12 — 4200 ports/sec — T1046'},
+  {t:'HIGH',    col:'var(--yellow)',msg:'Azure AD sign-in from new country: RU — user: admin@corp.com'},
+  {t:'HIGH',    col:'var(--yellow)',msg:'Kubernetes pod exec into production namespace — T1609'},
+  {t:'MEDIUM',  col:'var(--purple)',msg:'SSRF attempt on /api/metadata endpoint — T1552.005'},
+  {t:'HIGH',    col:'var(--yellow)',msg:'Mass email exfiltration via SMTP — 2,400 messages — T1114'},
+];
+let ei=0;
+setInterval(()=>{
+  const e=newEvents[ei%newEvents.length]; ei++;
+  const feed=document.getElementById('threat-feed');
+  const now=new Date().toISOString().slice(11,19);
+  const div=document.createElement('div');
+  div.className='event';
+  div.style.opacity='0';div.style.transition='opacity .4s';
+  div.innerHTML='<span class="event-time">'+now+'</span><div class="event-dot" style="background:'+e.col+'"></div><div class="event-text"><strong>['+e.t+']</strong> '+e.msg+'</div>';
+  feed.insertBefore(div,feed.firstChild);
+  requestAnimationFrame(()=>{div.style.opacity='1'});
+  if(feed.children.length>12)feed.removeChild(feed.lastChild);
+},4000);
+</script>
+</body>
+</html>
