@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **AI Automated Security Engineer (AASE)** is an entirely self-hosted, enterprise-grade AI-powered cybersecurity platform designed for large-scale deployments at organizations such as Amazon AWS, Avahi AI, Microsoft Azure, financial institutions (banks), and other regulated industries. It provides continuous automated threat detection, vulnerability assessment, compliance monitoring, and intelligent incident response — all without relying on any third-party SaaS or cloud-based AI vendor.
+The **AI Automated Security Engineer (AASE)** is an entirely self-hosted, enterprise-grade AI-powered cybersecurity platform designed for large-scale deployments at organizations such as Amazon AWS, Avahi AI, Microsoft Azure, financial institutions (banks), and other regulated industries. It provides continuous automated threat detection, vulnerability assessment, compliance monitoring, and intelligent incident response - all without relying on any third-party SaaS or cloud-based AI vendor.
 
 ### Key Differentiators
 
