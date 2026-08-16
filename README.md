@@ -2,10 +2,19 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11+-green.svg)
-![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
-![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)
+![Status](https://img.shields.io/badge/status-work--in--progress-yellow.svg)
 
 ## Overview
+
+> **🚧 Status: work in progress, not yet runnable end-to-end.** Both entry points
+> (`main.py` and `api/main.py`) import modules that don't exist yet in this repo
+> (`src/*`, `core/database.py`, `api/auth.py`, `api/routes/*`) — only a handful of
+> standalone components are implemented so far: `scanners/vulnerability_scanner.py`,
+> `threat_detection/threat_detector.py`, `compliance/compliance_checker.py`,
+> `incident_response/incident_manager.py`, `integrations/aws/aws_client.py`,
+> `ai_engine/llm_client.py`, and `core/config.py`. `demo.py` runs standalone today
+> (stdlib-only, simulated output) and is a good starting point to see the intended
+> UX. The architecture below is the target design, not the current state.
 
 The **AI Automated Security Engineer (AASE)** is an entirely self-hosted, enterprise-grade AI-powered cybersecurity platform designed for large-scale deployments at organizations such as Amazon AWS, Avahi AI, Microsoft Azure, financial institutions (banks), and other regulated industries. It provides continuous automated threat detection, vulnerability assessment, compliance monitoring, and intelligent incident response - all without relying on any third-party SaaS or cloud-based AI vendor.
 
