@@ -325,7 +325,7 @@ Respond with JSON only:
     def _make_cache_key(self, prompt: str, system: str, model: str) -> str:
         """Create a cache key for LLM requests."""
         content = f"{model}:{system}:{prompt}"
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
     async def close(self) -> None:
         """Close the HTTP client."""
